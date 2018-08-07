@@ -24,7 +24,7 @@ final String FONT_STRING = "MarkerFelt-Thin-48.vlw";
 final float INCREMENT = 0.01;  //smaller = slower transition
 
 //if true, the setch will output a tiff image each frame for making a movie
-final boolean SHOOT_VIDEO = true;
+final boolean SHOOT_VIDEO = false;
 
 /******************************************************************************************/
 
