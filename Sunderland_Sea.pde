@@ -1,5 +1,6 @@
 import org.gicentre.utils.move.Ease;
 import org.gicentre.handy.HandyRenderer;
+import org.gicentre.handy.HandyPresets;
 
 /**************************************** SETTINGS ****************************************/
 //set colours for the elements (R, G, B)
@@ -7,15 +8,15 @@ final color LAND = color(204, 235, 197);
 final color SAND = color(255, 255, 204);
 final color SEA = color(179, 205, 227);
 final color POI = color(206, 76, 52);
-final color ROAD = color(126);
+final color ROAD = color(90);
 final color OUTLINE = color(66);
 
 //parameters for sketchy rendering
-final float PENCIL_WIDTH = 0.5;
-final float PENCIL_GAP = 1;
+//final float PENCIL_WIDTH = 0.5;
+//final float PENCIL_GAP = 1;
 
 //set radius IN PIXELS for POI ellipse
-final int POI_RAD = 30;
+final int POI_RAD = 20;
 
 //name of the font to load (needs to be stored in data directory)
 final String FONT_STRING = "MarkerFelt-Thin-48.vlw";
@@ -30,6 +31,10 @@ final boolean SHOOT_VIDEO = false;
 
 //custom renderer
 HandyRenderer h;
+
+//colours
+color LAND_OUTLINE;
+color SAND_OUTLINE;
 
 //coordinate lists for target geometries
 ArrayList<PVector> tideIn = new ArrayList<PVector>();
@@ -60,7 +65,11 @@ void setup() {
 
   //setup sketch
   size(1000, 700);
-  //frameRate(6);
+  frameRate(30);
+  
+  //calculate additional colours
+  LAND_OUTLINE = darken(LAND, 0.3);
+  SAND_OUTLINE = darken(SAND, 0.3);
 
   //set geographical extent
   tlCorner = new PVector(339685, 459485);
@@ -74,6 +83,9 @@ void setup() {
 
   //initialise handy renderer
   h = new HandyRenderer(this);
+  //h = HandyPresets.createWaterAndInk(this);
+  //h.setRoughness(0);
+  h.setIsHandy(false);
 
   //load the font
   font = loadFont(FONT_STRING);
@@ -149,13 +161,13 @@ void draw() {
   //set styles for and draw the land
   noStroke();
   fill(LAND);
-  h.setFillGap(PENCIL_GAP);
-  h.setFillWeight(PENCIL_WIDTH);
-  h.setHachureAngle(45);
+  //h.setFillGap(PENCIL_GAP);
+  //h.setFillWeight(PENCIL_WIDTH);
+  //h.setHachureAngle(45);
   h.rect(0, 0, width, height);
 
   //set styles for and draw the sand
-  stroke(OUTLINE);
+  stroke(SAND_OUTLINE);
   strokeWeight(1);
   fill(SAND);
   h.beginShape();
@@ -166,7 +178,7 @@ void draw() {
 
   //set styles for the sea
   fill(SEA);
-  h.setHachureAngle(-45);
+  //h.setHachureAngle(-45);
 
   //draw the result of the cubic interpolation for the sea
   h.beginShape();
@@ -177,7 +189,7 @@ void draw() {
   
   //draw the roads
   stroke(ROAD);
-  strokeWeight(0.6);
+  strokeWeight(1.5);
   for (int i=0; i < roads.size(); i++) {
     PVector[] r = roads.get(i).toArray(new PVector[roads.get(i).size()]);
     for (int j=0; j < r.length-1; j++) {
@@ -198,15 +210,15 @@ void draw() {
     //add label
     fill(0);
     textFont(font, 18);
-    textAlign(LEFT, CENTER);
-    text(poi.name, loc.x + POI_RAD * 0.8, loc.y);
+    textAlign(RIGHT, CENTER);
+    text(poi.name, loc.x - POI_RAD * 0.8, loc.y);
   }
 
   //add title
-  fill(0);
-  textFont(font, 48);
-  textAlign(CENTER, BASELINE);
-  text("Tracing Tides", width/2, 50);
+  //fill(0);
+  //textFont(font, 48);
+  //textAlign(CENTER, BASELINE);
+  //text("Tracing Tides", width/2, 50);
 
   //increment t for cubic interpolation
   t += tInc;
@@ -225,4 +237,13 @@ PVector geoToScreen(PVector geo) {
   //use built in map function to map between the stated geographical extents and screen coordinates 
   return new PVector(map(geo.x, tlCorner.x, brCorner.x, 0, width), 
     map(geo.y, tlCorner.y, brCorner.y, 0, height));
+}
+
+/**
+ * Darken a colour to a fraction of itself
+ */
+color darken(color c, float fraction){
+  
+  //multiply each component by the provided fraction
+  return color(red(c)*fraction, green(c)*fraction, blue(c)*fraction, alpha(c));
 }
